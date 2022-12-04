@@ -128,6 +128,7 @@ fn day3_part2_chunk(contents: &str) {
     let chunks = contents.lines().chunks(3);
     for chunk in &chunks {
         println!("chunk");
+        // send over a collected vector instead of a chunk interator
         //three_chunk_priority(chunk);
         for line in chunk {
             println!("line: {}", line);
@@ -137,6 +138,7 @@ fn day3_part2_chunk(contents: &str) {
 }
 
 /*
+rewrite to take in a vector of 3 chunk vs iterator
 fn three_chunk_priority(chunk: itertools::Chunk<std::io::Lines<&str>>) -> u32 {
     0
 }
