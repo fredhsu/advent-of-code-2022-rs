@@ -1,4 +1,5 @@
 use std::fs;
+use itertools::chunks;
 
 fn choice_score(round: (&str, &str)) -> u32 {
     match round {
@@ -123,12 +124,19 @@ fn day3_part2(contents: &str) {
     }
     println!("Part 2 Total: {}", total);
 }
+fn day3_part2_chunk(contents: &str) {
+    let mut total = 0;
+    let mut lines = contents.lines().chunks(3);
+    println!("Chunks: {:?}", lines);
+    println!("Part 2 Total: {}", total);
+}
 
 fn day_three() {
     let file_path = "day3-input.txt";
     let contents = fs::read_to_string(file_path).expect("Should have been able to read the file");
         day3_part1(&contents);
         day3_part2(&contents);
+        day3_part2_chunk(&contents);
 }   
 
 fn main() {
