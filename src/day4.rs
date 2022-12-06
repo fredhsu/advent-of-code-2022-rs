@@ -28,7 +28,6 @@ pub fn day_four() {
             println!("Does not overlap {:?}", pair2);
         }
         if pair2[0][0] <= pair2[1][0] && pair2[0][1] >= pair2[1][1] {
-            println!(pair2[0][0], pair2[0][1], pair2[0][1], pair2[1][1]);
             total += 1;
             continue;
         } else if pair2[1][0] <= pair2[0][0] && pair2[1][1] >= pair2[0][1] {
