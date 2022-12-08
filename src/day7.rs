@@ -200,8 +200,9 @@ pub fn day_seven() {
             },
         }
     }
-    println!("{:#?}", PrettyNode(&root));
+    //println!("{:#?}", PrettyNode(&root));
 
+    /*
     let sum = all_dirs(root)
         .map(|d| d.borrow().total_size())
         .filter(|&s| s <= 100_000)
@@ -210,4 +211,20 @@ pub fn day_seven() {
         })
         .sum::<u64>();
     dbg!(sum);
+    */
+
+    let total_space = 70000000_u64;
+    let used_space = root.borrow().total_size();
+    let free_space = total_space.checked_sub(dbg!(used_space)).unwrap(); //checked_sub will return
+                                                                         // None instead of overlow
+    let needed_free_space = 30000000_u64;
+    let minimum_space_to_free = needed_free_space.checked_sub(free_space).unwrap();
+    let removed_dir_size = all_dirs(root)
+        .map(|d| d.borrow().total_size())
+        .filter(|&s| s >= minimum_space_to_free)
+        .inspect(|s| {
+            dbg!(s);
+        })
+        .min();
+    dbg!(removed_dir_size);
 }
