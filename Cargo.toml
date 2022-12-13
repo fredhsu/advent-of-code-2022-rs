@@ -7,6 +7,8 @@ edition = "2021"
 
 [dependencies]
 camino = "1.1.1"
+color-eyre = "0.6.2"
+id_tree = "1.8.0"
 indexmap = "1.9.2"
 itertools = "0.10"
 nom = "7"

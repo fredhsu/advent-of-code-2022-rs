@@ -1,4 +1,5 @@
 use core::fmt;
+use id_tree::{InsertBehavior, Node, Tree};
 use indexmap::IndexMap;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
@@ -83,7 +84,7 @@ fn parse_line(i: &str) -> IResult<&str, Line> {
         map(parse_entry, Line::Entry),
     ))(i)
 }
-
+/*
 type NodeHandle = Rc<RefCell<Node>>;
 
 struct PrettyNode<'a>(&'a NodeHandle);
@@ -107,7 +108,9 @@ impl<'a> fmt::Debug for PrettyNode<'a> {
         Ok(())
     }
 }
+*/
 
+/*
 #[derive(Default)]
 struct Node {
     size: usize,
@@ -137,7 +140,8 @@ impl fmt::Debug for Node {
             .finish()
     }
 }
-
+*/
+/*
 fn all_dirs(n: NodeHandle) -> Box<dyn Iterator<Item = NodeHandle>> {
     let children = n.borrow().children.values().cloned().collect::<Vec<_>>();
     Box::new(
@@ -155,12 +159,68 @@ fn all_dirs(n: NodeHandle) -> Box<dyn Iterator<Item = NodeHandle>> {
         ),
     )
 }
+*/
 
-pub fn day_seven() {
+#[derive(Debug)]
+struct FsEntry {
+    path: Utf8PathBuf,
+    size: u64,
+}
+
+pub fn day_seven() -> color_eyre::Result<()> {
+    color_eyre::install().unwrap();
     let lines = include_str!("../input/day7-input.txt")
         .lines()
         .map(|l| all_consuming(parse_line)(l).finish().unwrap().1);
 
+    let mut tree = Tree::<FsEntry>::new();
+    let root = tree.insert(
+        Node::new(FsEntry {
+            path: "/".into(),
+            size: 0,
+        }),
+        InsertBehavior::AsRoot,
+    )?;
+    let mut curr = root;
+
+    for line in lines {
+        println!("{line:?}");
+        match line {
+            Line::Command(cmd) => match cmd {
+                Command::Ls => {
+                    // ignore
+                }
+                Command::Cd(path) => match path.as_str() {
+                    "/" => {
+                        // ignore we're already there
+                    }
+                    ".." => {
+                        curr = tree.get(&curr)?.parent().unwrap().clone();
+                    }
+                    _ => {
+                        let node = Node::new(FsEntry {
+                            path: path.clone(),
+                            size: 0,
+                        });
+                        curr = tree.insert(node, InsertBehavior::UnderNode(&curr))?;
+                    }
+                },
+            },
+            Line::Entry(entry) => match entry {
+                Entry::Dir(_) => {}
+                Entry::File(size, path) => {
+                    let node = Node::new(FsEntry { size, path });
+                    tree.insert(node, InsertBehavior::UnderNode(&curr))?;
+                }
+            },
+        }
+    }
+    let mut s = String::new();
+    tree.write_formatted(&mut s)?;
+    println!("{s}");
+
+    Ok(())
+    /*
     let root = Rc::new(RefCell::new(Node::default()));
     let mut node = root.clone();
     for line in lines {
@@ -227,4 +287,5 @@ pub fn day_seven() {
         })
         .min();
     dbg!(removed_dir_size);
+    */
 }
