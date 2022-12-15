@@ -87,14 +87,14 @@ fn move_knots_right(dist: u32, knots: &mut Vec<Point>) -> Vec<Point> {
 
         // find the next spot for all the followers
         for i in 1..knots.len() {
-            if let Some(x) = follow_right(&knots[i - 1], &knots[i]) {
+            if let Some(x) = follow(&knots[i - 1], &knots[i]) {
                 // if the next knot should move then reassign current knot the new location
                 knots[i] = x;
             }
         }
         // after moving everything add the end the the list
         moves.push(knots[knots.len() - 1]);
-        print_knots(knots);
+        //print_knots(knots);
     }
     moves
 }
@@ -104,14 +104,14 @@ fn move_knots_left(dist: u32, knots: &mut Vec<Point>) -> Vec<Point> {
     for _ in 0..dist {
         knots[0].1 -= 1;
         for i in 1..knots.len() {
-            if let Some(x) = follow_left(&knots[i - 1], &knots[i]) {
+            if let Some(x) = follow(&knots[i - 1], &knots[i]) {
                 // if the next knot should move then reassign current knot the new location
                 knots[i] = x;
             }
         }
         // after moving everything add the end the the list
         moves.push(knots[knots.len() - 1]);
-        print_knots(knots);
+        //print_knots(knots);
     }
     moves
 }
@@ -120,14 +120,14 @@ fn move_knots_up(dist: u32, knots: &mut Vec<Point>) -> Vec<Point> {
     for _ in 0..dist {
         knots[0].0 += 1;
         for i in 1..knots.len() {
-            if let Some(x) = follow_up(&knots[i - 1], &knots[i]) {
+            if let Some(x) = follow(&knots[i - 1], &knots[i]) {
                 // if the next knot should move then reassign current knot the new location
                 knots[i] = x;
             }
         }
         // after moving everything add the end the the list
         moves.push(knots[knots.len() - 1]);
-        print_knots(knots);
+        //print_knots(knots);
     }
     moves
 }
@@ -136,7 +136,7 @@ fn move_knots_down(dist: u32, knots: &mut Vec<Point>) -> Vec<Point> {
     for _ in 0..dist {
         knots[0].0 -= 1;
         for i in 1..knots.len() {
-            if let Some(x) = follow_down(&knots[i - 1], &knots[i]) {
+            if let Some(x) = follow(&knots[i - 1], &knots[i]) {
                 // if the next knot should move then reassign current knot the new location
                 knots[i] = x;
             }
@@ -177,14 +177,28 @@ fn follow_right(lead: &Point, follow: &Point) -> Option<Point> {
     }
     None
 }
-fn follow(lead: &Point, follow: &Point) {
+fn follow(lead: &Point, follow: &Point) -> Option<Point> {
     if !is_adjacent(lead, follow) {
         // if directly left or right
-        if lead.0 == follow.0 {
-            let diff = lead.1 - follow.1; // if lead is 2 and follow is 0 = 2, lead -1 follow 1
-                                          // diff is -2
-            
-        }
+        let row = match follow.0.cmp(&lead.0) {
+            // the lead is above the follow, add one to follow
+            std::cmp::Ordering::Less => follow.0 + 1,
+            // Row is the same, no vertical movement
+            std::cmp::Ordering::Equal => follow.0,
+            // the lead is below the follow, subtrat one from follow
+            std::cmp::Ordering::Greater => follow.0 - 1,
+        };
+        let col = match follow.1.cmp(&lead.1) {
+            // the lead is above the follow, add one to follow
+            std::cmp::Ordering::Less => follow.1 + 1,
+            // Row is the same, no vertical movement
+            std::cmp::Ordering::Equal => follow.1,
+            // the lead is below the follow, subtrat one from follow
+            std::cmp::Ordering::Greater => follow.1 - 1,
+        };
+        Some((row, col))
+    } else {
+        None
     }
 }
 fn follow_left(lead: &Point, follow: &Point) -> Option<Point> {
@@ -225,7 +239,7 @@ fn follow_down(lead: &Point, follow: &Point) -> Option<Point> {
 }
 
 pub fn day_nine() {
-    let lines = include_str!("../input/day9-small.txt").lines();
+    let lines = include_str!("../input/day9-input.txt").lines();
     //let mut head = (0, 0);
     //let mut tail = (0, 0);
     let mut knots = vec![(0, 0); 10];
