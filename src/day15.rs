@@ -1,64 +1,41 @@
-use core::fmt::{Display, Formatter, Result};
-use nom::branch::alt;
 use nom::bytes::complete::*;
-use nom::character::complete::*;
 use nom::combinator::*;
-use nom::multi::{separated_list0, separated_list1};
+use nom::multi::separated_list1;
 use nom::sequence::*;
 use nom::IResult;
-use std::cmp::Ordering;
+use std::cmp;
+use std::collections::HashMap;
 use std::collections::HashSet;
 
 type Point = (i32, i32);
-/*
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-struct Point {
-    x: i32,
-    y: i32,
-}
-*/
 
-fn get_coverage(sensor: Point, beacon: Point, row: i32) -> HashSet<Point> {
-    //println!("Coverage for sensor: {sensor:?}, beacon: {beacon:?}");
+fn get_coverage(sensor: Point, beacon: Point) -> HashSet<Point> {
     let mut points = HashSet::new();
+    let mut ranges = HashMap::new();
     let mdist = (sensor.0.abs_diff(beacon.0) + sensor.1.abs_diff(beacon.1)) as i32;
-    //println!("Manhattan Distance: {mdist}");
-    if sensor.1 + mdist > row && sensor.1 - mdist < row {
+    let low = sensor.1 - mdist;
+    let high = sensor.1 + mdist;
+    let low = cmp::max(0, low);
+    let high = cmp::min(4_000_000, high);
+    println!("low: {low}, high: {high}");
+
+    for row in low..=high {
         // figure out what x positions need to be added based on the y distance from the sensor
         let y_dist = row.abs_diff(sensor.1) as i32;
         let x_dist = mdist - y_dist;
+        let start = sensor.0 - x_dist;
+        let end = sensor.0 + x_dist;
+        let xrange = (start, end);
+        ranges.insert(row, xrange);
+
+        // create a tuple that defines the range instead and make a vector of those then use that
+        // to calculate overlap/gaps
+        /*
         for i in sensor.0 - x_dist..=sensor.0 + x_dist {
             points.insert((i, row));
         }
-    } else {
-        println!(
-            "Max: {}\nRow: {row}\nMin: {}\n\n",
-            sensor.1 + mdist,
-            sensor.1 - mdist
-        );
+        */
     }
-    /*
-        for i in sensor.0 - mdist..=sensor.0 + mdist {
-            let y_dist = mdist - (i.abs_diff(sensor.0) as i32);
-            //println!("{i} : dist {y_dist}");
-            for j in 0..=y_dist {
-                points.insert(i, y);
-            }
-            /*for j in 0..=y_dist {
-                let x = i;
-                let y = sensor.1 + j;
-                let y2 = sensor.1 - j;
-                if y == row {
-                    points.insert((x, y));
-                } else if y2 == row {
-                    points.insert((x, y2));
-                }
-                //println!("Inserting for ({x}, {y}) and ({x}, {y2})");
-            }
-            */
-        }
-    */
-    //println!("Points: {points:?}");
     points
 }
 fn parse_line(i: &str) -> IResult<&str, (Point, Point)> {
@@ -104,8 +81,8 @@ pub fn day_fifteen() {
     let mut coverage = HashSet::new();
     let row = 2_000_000;
     for (sensor, beacon) in l {
-        //println!("Getting coverage for {:?} b: {:?}", sensor, beacon);
-        coverage.extend(get_coverage(sensor, beacon, row));
+        println!("Getting coverage for {:?} b: {:?}", sensor, beacon);
+        coverage.extend(get_coverage(sensor, beacon));
         beacons.insert(beacon);
     }
     println!("{}", coverage.len());
