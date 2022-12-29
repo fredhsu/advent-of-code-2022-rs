@@ -9,8 +9,6 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::ops::RangeInclusive;
 
-type PPoint = (i32, i32);
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Point {
     x: i64,
@@ -277,37 +275,6 @@ fn print_coverage(map: &HashSet<PPoint>) {
     }
 }
 
-pub fn day_fifteen() {
+pub fn day_sixteen() {
     let lines = include_str!("../input/day15-input.txt");
-    //let mut sensors = Vec::new();
-    //let mut beacons = HashSet::new();
-    /*let (_, l) = all_consuming(terminated(
-        separated_list1(tag("\n"), parse_line),
-        tag("\n"),
-    ))(lines)
-    .unwrap();
-    let mut coverage: HashMap<PPoint, i32> = HashMap::new();
-    for (sensor, beacon) in l {
-        //println!("Getting coverage for s: {sensor:?} b: {beacon:?}");
-        //println!("Getting edges for s: {sensor:?} b: {beacon:?}");
-        let edges = get_edges(sensor, beacon);
-        for edge in edges {
-            if let Some(c) = coverage.get_mut(&edge) {
-                *c += 1;
-            } else {
-                coverage.insert(edge, 1);
-            }
-        }
-    }
-    */
-    for (input, _y, range) in [(
-        include_str!("../input/day15-input.txt"),
-        2_000_000,
-        0..=4_000_000,
-    )] {
-        let map = Map::parse(input);
-        let bp = map.beacon_position(&range, &range).unwrap();
-        dbg!(bp);
-        println!("tuning freq: {}", bp.x * 4_000_000 + bp.y);
-    }
 }
